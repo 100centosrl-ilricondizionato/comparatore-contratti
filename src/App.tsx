@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import type { ComparatoreInputs } from "./types";
 import { classificaOfferte } from "./calc";
 import { useOfferte } from "./hooks/useOfferte";
+import { usePun } from "./hooks/usePun";
 import ContractForm from "./components/ContractForm";
 import ResultPanel from "./components/ResultPanel";
 import PdfReport from "./components/PdfReport";
@@ -24,10 +25,11 @@ export default function App() {
   const reportRef = useRef<HTMLDivElement>(null);
 
   const { offerte, loading } = useOfferte(inputs.categoria);
+  const { pun } = usePun();
 
   const classifica = useMemo(
-    () => classificaOfferte(offerte, inputs.consumoAnnuo, inputs.attuale),
-    [offerte, inputs.consumoAnnuo, inputs.attuale]
+    () => classificaOfferte(offerte, inputs.categoria, inputs.consumoAnnuo, inputs.attuale, pun?.valore ?? null),
+    [offerte, inputs.categoria, inputs.consumoAnnuo, inputs.attuale, pun]
   );
 
   // quando cambia la classifica (nuove offerte, cambio categoria, ecc.)
@@ -136,7 +138,7 @@ export default function App() {
             result={offertaSelezionata.risultato}
             offerta={{
               nome: offertaSelezionata.nome,
-              costoUnitario: offertaSelezionata.costoUnitario,
+              costoUnitario: offertaSelezionata.costoEffettivo,
               spesaFissaMensile: offertaSelezionata.spesaFissaMensile,
             }}
           />
