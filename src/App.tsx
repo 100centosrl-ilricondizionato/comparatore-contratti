@@ -7,6 +7,7 @@ import ResultPanel from "./components/ResultPanel";
 import PdfReport from "./components/PdfReport";
 import OffersRanking from "./components/OffersRanking";
 import OffersManager from "./components/OffersManager";
+import PunBadge from "./components/PunBadge";
 
 const DEFAULT_INPUTS: ComparatoreInputs = {
   clienteNome: "",
@@ -29,6 +30,8 @@ export default function App() {
     [offerte, inputs.consumoAnnuo, inputs.attuale]
   );
 
+  // quando cambia la classifica (nuove offerte, cambio categoria, ecc.)
+  // se non c'è più una selezione valida, seleziona automaticamente la migliore
   useEffect(() => {
     if (classifica.length === 0) {
       setSelezionataId(null);
@@ -75,7 +78,7 @@ export default function App() {
   return (
     <div className="min-h-screen" style={{ background: "var(--color-paper)" }}>
       <div className="max-w-5xl mx-auto px-4 py-6 sm:px-6 sm:py-10">
-        <header className="mb-6 sm:mb-8 flex items-center justify-between gap-3">
+        <header className="mb-6 sm:mb-8 flex items-center justify-between gap-3 flex-wrap">
           <div className="flex items-center gap-3">
             <div
               className="h-11 w-11 rounded-full flex items-center justify-center font-bold text-xs shrink-0"
@@ -92,13 +95,16 @@ export default function App() {
               </p>
             </div>
           </div>
-          <button
-            onClick={() => setGestioneAperta(true)}
-            className="text-xs sm:text-sm px-3 py-2 rounded-lg font-semibold shrink-0"
-            style={{ background: "var(--color-panel)", border: "1px solid var(--color-line-soft)" }}
-          >
-            Gestisci offerte
-          </button>
+          <div className="flex items-center gap-2 shrink-0">
+            {inputs.categoria === "luce" && <PunBadge />}
+            <button
+              onClick={() => setGestioneAperta(true)}
+              className="text-xs sm:text-sm px-3 py-2 rounded-lg font-semibold shrink-0"
+              style={{ background: "var(--color-panel)", border: "1px solid var(--color-line-soft)" }}
+            >
+              Gestisci offerte
+            </button>
+          </div>
         </header>
 
         <div className="grid md:grid-cols-[1.3fr_1fr] gap-6 items-start">
@@ -121,6 +127,7 @@ export default function App() {
         </div>
       </div>
 
+      {/* off-screen printable report used to generate the PDF */}
       {offertaSelezionata && (
         <div style={{ position: "fixed", top: 0, left: -99999, pointerEvents: "none" }}>
           <PdfReport
