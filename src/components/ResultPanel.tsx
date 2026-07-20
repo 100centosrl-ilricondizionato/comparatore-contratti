@@ -3,12 +3,24 @@ import { formatEuro, formatNumero } from "../calc";
 import MeterGauge from "./MeterGauge";
 
 interface Props {
-  result: CalcResult;
+  result: CalcResult | null;
+  offertaNome: string | null;
   onDownload: () => void;
   downloading: boolean;
 }
 
-export default function ResultPanel({ result, onDownload, downloading }: Props) {
+export default function ResultPanel({ result, offertaNome, onDownload, downloading }: Props) {
+  if (!result) {
+    return (
+      <div
+        className="rounded-2xl p-6 text-center text-sm"
+        style={{ background: "var(--color-ink)", color: "var(--color-paper)", opacity: 0.7 }}
+      >
+        Seleziona un'offerta dalla classifica per vedere il risparmio.
+      </div>
+    );
+  }
+
   const isPositive = result.risparmioAnnuo >= 0;
 
   return (
@@ -16,6 +28,14 @@ export default function ResultPanel({ result, onDownload, downloading }: Props) 
       className="rounded-2xl p-6 flex flex-col items-center text-center"
       style={{ background: "var(--color-ink)", color: "var(--color-paper)" }}
     >
+      {offertaNome && (
+        <div
+          className="text-[11px] font-semibold px-2.5 py-1 rounded-full mb-2"
+          style={{ background: "rgba(242,169,59,0.16)", color: "var(--color-spark)" }}
+        >
+          {offertaNome}
+        </div>
+      )}
       <span className="text-[11px] uppercase tracking-[0.2em] opacity-70">
         {isPositive ? "Risparmio stimato" : "Variazione stimata"}
       </span>
