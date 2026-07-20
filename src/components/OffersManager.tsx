@@ -2,6 +2,7 @@ import { useState } from "react";
 import type { Categoria, Offerta } from "../types";
 import { UNITA } from "../types";
 import { useOfferte } from "../hooks/useOfferte";
+import { usePun } from "../hooks/usePun";
 import NumberInput from "./NumberInput";
 
 interface Props {
@@ -13,6 +14,7 @@ const VUOTA = {
   nome: "",
   tipoPrezzo: "fisso" as const,
   costoUnitario: 0,
+  spreadPun: 0,
   spesaFissaMensile: 0,
   attiva: true,
   note: "",
@@ -41,10 +43,14 @@ function SelectTipoPrezzo({
 export default function OffersManager({ categoria, onClose }: Props) {
   const { offerte, loading, errore, aggiungiOfferta, aggiornaOfferta, eliminaOfferta } =
     useOfferte(categoria);
+  const { pun } = usePun();
   const [nuova, setNuova] = useState<Omit<Offerta, "id">>(VUOTA);
   const [editId, setEditId] = useState<string | null>(null);
   const [editBozza, setEditBozza] = useState<Omit<Offerta, "id"> | null>(null);
   const unita = UNITA[categoria];
+
+  const nuovaEVariabileLuce = categoria === "luce" && nuova.tipoPrezzo === "variabile";
+  const editEVariabileLuce = categoria === "luce" && editBozza?.tipoPrezzo === "variabile";
 
   async function handleAggiungi() {
     if (!nuova.nome.trim()) return;
@@ -58,6 +64,7 @@ export default function OffersManager({ categoria, onClose }: Props) {
       nome: o.nome,
       tipoPrezzo: o.tipoPrezzo ?? "fisso",
       costoUnitario: o.costoUnitario,
+      spreadPun: o.spreadPun ?? 0,
       spesaFissaMensile: o.spesaFissaMensile,
       attiva: o.attiva,
       note: o.note ?? "",
@@ -69,6 +76,11 @@ export default function OffersManager({ categoria, onClose }: Props) {
     await aggiornaOfferta(editId, editBozza);
     setEditId(null);
     setEditBozza(null);
+  }
+
+  function prezzoLive(spread: number) {
+    if (!pun) return null;
+    return pun.valore + spread;
   }
 
   return (
@@ -113,14 +125,25 @@ export default function OffersManager({ categoria, onClose }: Props) {
               value={nuova.tipoPrezzo}
               onChange={(v) => setNuova({ ...nuova, tipoPrezzo: v })}
             />
-            <NumberInput
-              step="0.001"
-              placeholder={unita.costo}
-              value={nuova.costoUnitario}
-              onChange={(n) => setNuova({ ...nuova, costoUnitario: n })}
-              className="rounded-lg px-3 py-2 text-sm outline-none border"
-              style={{ borderColor: "var(--color-line)" }}
-            />
+            {nuovaEVariabileLuce ? (
+              <NumberInput
+                step="0.001"
+                placeholder="Spread su PUN €/kWh"
+                value={nuova.spreadPun ?? 0}
+                onChange={(n) => setNuova({ ...nuova, spreadPun: n })}
+                className="rounded-lg px-3 py-2 text-sm outline-none border"
+                style={{ borderColor: "var(--color-line)" }}
+              />
+            ) : (
+              <NumberInput
+                step="0.001"
+                placeholder={unita.costo}
+                value={nuova.costoUnitario}
+                onChange={(n) => setNuova({ ...nuova, costoUnitario: n })}
+                className="rounded-lg px-3 py-2 text-sm outline-none border"
+                style={{ borderColor: "var(--color-line)" }}
+              />
+            )}
             <NumberInput
               step="0.01"
               placeholder="Spesa fissa €/mese"
@@ -130,6 +153,13 @@ export default function OffersManager({ categoria, onClose }: Props) {
               style={{ borderColor: "var(--color-line)" }}
             />
           </div>
+          {nuovaEVariabileLuce && (
+            <div className="mt-2 text-xs" style={{ color: "var(--color-ink-soft)" }}>
+              {pun
+                ? `Prezzo di oggi: PUN (${pun.valore.toLocaleString("it-IT", { minimumFractionDigits: 3 })}) + spread (${(nuova.spreadPun ?? 0).toLocaleString("it-IT", { minimumFractionDigits: 3 })}) = ${prezzoLive(nuova.spreadPun ?? 0)!.toLocaleString("it-IT", { minimumFractionDigits: 3 })} €/kWh`
+                : "PUN non ancora impostato: aggiornalo dal badge in alto per vedere il prezzo attuale."}
+            </div>
+          )}
           <input
             placeholder="Note (es. obbligo email, obbligo SDD, altre condizioni)"
             value={nuova.note}
@@ -172,13 +202,23 @@ export default function OffersManager({ categoria, onClose }: Props) {
                         value={editBozza.tipoPrezzo}
                         onChange={(v) => setEditBozza({ ...editBozza, tipoPrezzo: v })}
                       />
-                      <NumberInput
-                        step="0.001"
-                        value={editBozza.costoUnitario}
-                        onChange={(n) => setEditBozza({ ...editBozza, costoUnitario: n })}
-                        className="rounded-lg px-2 py-1.5 text-sm border outline-none"
-                        style={{ borderColor: "var(--color-line)" }}
-                      />
+                      {editEVariabileLuce ? (
+                        <NumberInput
+                          step="0.001"
+                          value={editBozza.spreadPun ?? 0}
+                          onChange={(n) => setEditBozza({ ...editBozza, spreadPun: n })}
+                          className="rounded-lg px-2 py-1.5 text-sm border outline-none"
+                          style={{ borderColor: "var(--color-line)" }}
+                        />
+                      ) : (
+                        <NumberInput
+                          step="0.001"
+                          value={editBozza.costoUnitario}
+                          onChange={(n) => setEditBozza({ ...editBozza, costoUnitario: n })}
+                          className="rounded-lg px-2 py-1.5 text-sm border outline-none"
+                          style={{ borderColor: "var(--color-line)" }}
+                        />
+                      )}
                       <NumberInput
                         step="0.01"
                         value={editBozza.spesaFissaMensile}
@@ -187,6 +227,13 @@ export default function OffersManager({ categoria, onClose }: Props) {
                         style={{ borderColor: "var(--color-line)" }}
                       />
                     </div>
+                    {editEVariabileLuce && (
+                      <div className="text-xs" style={{ color: "var(--color-ink-soft)" }}>
+                        {pun
+                          ? `Prezzo di oggi: PUN (${pun.valore.toLocaleString("it-IT", { minimumFractionDigits: 3 })}) + spread (${(editBozza.spreadPun ?? 0).toLocaleString("it-IT", { minimumFractionDigits: 3 })}) = ${prezzoLive(editBozza.spreadPun ?? 0)!.toLocaleString("it-IT", { minimumFractionDigits: 3 })} €/kWh`
+                          : "PUN non ancora impostato."}
+                      </div>
+                    )}
                     <input
                       placeholder="Note (es. obbligo email, obbligo SDD, altre condizioni)"
                       value={editBozza.note}
@@ -229,7 +276,15 @@ export default function OffersManager({ categoria, onClose }: Props) {
                         )}
                       </div>
                       <div className="text-xs tabular" style={{ color: "var(--color-ink-soft)", fontFamily: "var(--font-mono)" }}>
-                        {o.costoUnitario.toLocaleString("it-IT", { minimumFractionDigits: 3 })} {unita.costo} ·{" "}
+                        {categoria === "luce" && o.tipoPrezzo === "variabile" ? (
+                          <>
+                            PUN + {(o.spreadPun ?? 0).toLocaleString("it-IT", { minimumFractionDigits: 3 })} {unita.costo}
+                            {pun && <> (oggi: {prezzoLive(o.spreadPun ?? 0)!.toLocaleString("it-IT", { minimumFractionDigits: 3 })} {unita.costo})</>}
+                          </>
+                        ) : (
+                          <>{o.costoUnitario.toLocaleString("it-IT", { minimumFractionDigits: 3 })} {unita.costo}</>
+                        )}
+                        {" · "}
                         {o.spesaFissaMensile.toLocaleString("it-IT", { minimumFractionDigits: 2 })} €/mese
                       </div>
                       {o.note && (
