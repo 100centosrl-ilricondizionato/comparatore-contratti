@@ -51,8 +51,8 @@ export default function App() {
 
   return (
     <div className="min-h-screen" style={{ background: "var(--color-paper)" }}>
-      <div className="max-w-5xl mx-auto px-6 py-10">
-        <header className="mb-8 flex items-center gap-3">
+      <div className="max-w-5xl mx-auto px-4 py-6 sm:px-6 sm:py-10">
+        <header className="mb-6 sm:mb-8 flex items-center gap-3">
           <div
             className="h-11 w-11 rounded-full flex items-center justify-center font-bold text-xs"
             style={{ background: "var(--color-ink)", color: "var(--color-spark)", fontFamily: "var(--font-display)" }}
