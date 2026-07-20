@@ -2,6 +2,7 @@ import { useState } from "react";
 import type { Categoria, Offerta } from "../types";
 import { UNITA } from "../types";
 import { useOfferte } from "../hooks/useOfferte";
+import NumberInput from "./NumberInput";
 
 interface Props {
   categoria: Categoria;
@@ -112,21 +113,19 @@ export default function OffersManager({ categoria, onClose }: Props) {
               value={nuova.tipoPrezzo}
               onChange={(v) => setNuova({ ...nuova, tipoPrezzo: v })}
             />
-            <input
-              type="number"
+            <NumberInput
               step="0.001"
               placeholder={unita.costo}
-              value={nuova.costoUnitario || ""}
-              onChange={(e) => setNuova({ ...nuova, costoUnitario: parseFloat(e.target.value) || 0 })}
+              value={nuova.costoUnitario}
+              onChange={(n) => setNuova({ ...nuova, costoUnitario: n })}
               className="rounded-lg px-3 py-2 text-sm outline-none border"
               style={{ borderColor: "var(--color-line)" }}
             />
-            <input
-              type="number"
+            <NumberInput
               step="0.01"
               placeholder="Spesa fissa €/mese"
-              value={nuova.spesaFissaMensile || ""}
-              onChange={(e) => setNuova({ ...nuova, spesaFissaMensile: parseFloat(e.target.value) || 0 })}
+              value={nuova.spesaFissaMensile}
+              onChange={(n) => setNuova({ ...nuova, spesaFissaMensile: n })}
               className="rounded-lg px-3 py-2 text-sm outline-none border"
               style={{ borderColor: "var(--color-line)" }}
             />
@@ -173,19 +172,17 @@ export default function OffersManager({ categoria, onClose }: Props) {
                         value={editBozza.tipoPrezzo}
                         onChange={(v) => setEditBozza({ ...editBozza, tipoPrezzo: v })}
                       />
-                      <input
-                        type="number"
+                      <NumberInput
                         step="0.001"
                         value={editBozza.costoUnitario}
-                        onChange={(e) => setEditBozza({ ...editBozza, costoUnitario: parseFloat(e.target.value) || 0 })}
+                        onChange={(n) => setEditBozza({ ...editBozza, costoUnitario: n })}
                         className="rounded-lg px-2 py-1.5 text-sm border outline-none"
                         style={{ borderColor: "var(--color-line)" }}
                       />
-                      <input
-                        type="number"
+                      <NumberInput
                         step="0.01"
                         value={editBozza.spesaFissaMensile}
-                        onChange={(e) => setEditBozza({ ...editBozza, spesaFissaMensile: parseFloat(e.target.value) || 0 })}
+                        onChange={(n) => setEditBozza({ ...editBozza, spesaFissaMensile: n })}
                         className="rounded-lg px-2 py-1.5 text-sm border outline-none"
                         style={{ borderColor: "var(--color-line)" }}
                       />
@@ -236,41 +233,4 @@ export default function OffersManager({ categoria, onClose }: Props) {
                         {o.spesaFissaMensile.toLocaleString("it-IT", { minimumFractionDigits: 2 })} €/mese
                       </div>
                       {o.note && (
-                        <div className="text-xs mt-0.5 italic" style={{ color: "var(--color-ink-soft)" }}>
-                          {o.note}
-                        </div>
-                      )}
-                    </div>
-                    <div className="flex gap-2 shrink-0">
-                      <button
-                        onClick={() => aggiornaOfferta(o.id, { attiva: !o.attiva })}
-                        className="text-xs px-2.5 py-1.5 rounded-lg"
-                        style={{ background: "var(--color-paper-dim)" }}
-                      >
-                        {o.attiva ? "Disattiva" : "Attiva"}
-                      </button>
-                      <button
-                        onClick={() => iniziaModifica(o)}
-                        className="text-xs px-2.5 py-1.5 rounded-lg"
-                        style={{ background: "var(--color-paper-dim)" }}
-                      >
-                        Modifica
-                      </button>
-                      <button
-                        onClick={() => eliminaOfferta(o.id)}
-                        className="text-xs px-2.5 py-1.5 rounded-lg"
-                        style={{ background: "#F7DEDB", color: "#8A2E22" }}
-                      >
-                        Elimina
-                      </button>
-                    </div>
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-    </div>
-  );
-}
+                        <div className="text-xs mt-0.5 italic"
