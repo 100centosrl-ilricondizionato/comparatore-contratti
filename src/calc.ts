@@ -1,16 +1,18 @@
-import type { LuceInputs, CalcResult } from "./types";
+import type { ContrattoInput, CalcResult, Offerta, OffertaClassificata } from "./types";
 
-export function calcolaRisparmio(input: LuceInputs): CalcResult {
-  const { consumoAnnuo, attuale, nuovo } = input;
+export function calcolaRisparmio(
+  consumoAnnuo: number,
+  attuale: ContrattoInput,
+  nuovo: ContrattoInput
+): CalcResult {
+  const consumoAnnuoAttuale = consumoAnnuo * attuale.costoUnitario;
+  const consumoAnnuoNuovo = consumoAnnuo * nuovo.costoUnitario;
 
-  const energiaAnnuaAttuale = consumoAnnuo * attuale.costoKwh;
-  const energiaAnnuaNuovo = consumoAnnuo * nuovo.costoKwh;
+  const spesaFissaAnnuaAttuale = attuale.spesaFissaMensile * 12;
+  const spesaFissaAnnuaNuovo = nuovo.spesaFissaMensile * 12;
 
-  const podAnnuoAttuale = attuale.podMensile * 12;
-  const podAnnuoNuovo = nuovo.podMensile * 12;
-
-  const costoAnnuoAttuale = energiaAnnuaAttuale + podAnnuoAttuale;
-  const costoAnnuoNuovo = energiaAnnuaNuovo + podAnnuoNuovo;
+  const costoAnnuoAttuale = consumoAnnuoAttuale + spesaFissaAnnuaAttuale;
+  const costoAnnuoNuovo = consumoAnnuoNuovo + spesaFissaAnnuaNuovo;
 
   const risparmioAnnuo = costoAnnuoAttuale - costoAnnuoNuovo;
   const risparmioPercentuale =
@@ -19,14 +21,31 @@ export function calcolaRisparmio(input: LuceInputs): CalcResult {
   return {
     costoAnnuoAttuale,
     costoAnnuoNuovo,
-    podAnnuoAttuale,
-    podAnnuoNuovo,
-    energiaAnnuaAttuale,
-    energiaAnnuaNuovo,
+    spesaFissaAnnuaAttuale,
+    spesaFissaAnnuaNuovo,
+    consumoAnnuoAttuale,
+    consumoAnnuoNuovo,
     risparmioAnnuo,
     risparmioPercentuale,
     risparmioMensile: risparmioAnnuo / 12,
   };
+}
+
+export function classificaOfferte(
+  offerte: Offerta[],
+  consumoAnnuo: number,
+  attuale: ContrattoInput
+): OffertaClassificata[] {
+  return offerte
+    .filter((o) => o.attiva)
+    .map((o) => ({
+      ...o,
+      risultato: calcolaRisparmio(consumoAnnuo, attuale, {
+        costoUnitario: o.costoUnitario,
+        spesaFissaMensile: o.spesaFissaMensile,
+      }),
+    }))
+    .sort((a, b) => b.risultato.risparmioAnnuo - a.risultato.risparmioAnnuo);
 }
 
 export function formatEuro(v: number): string {
