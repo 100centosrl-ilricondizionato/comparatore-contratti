@@ -9,7 +9,8 @@ export interface Offerta {
   id: string;
   nome: string;
   tipoPrezzo: "fisso" | "variabile";
-  costoUnitario: number;
+  costoUnitario: number; // usato quando tipoPrezzo è "fisso" (o per il gas, finché non c'è un indice live)
+  spreadPun?: number; // usato per la luce quando tipoPrezzo è "variabile": margine aggiunto al PUN, €/kWh
   spesaFissaMensile: number;
   attiva: boolean;
   note?: string;
@@ -35,6 +36,7 @@ export interface CalcResult {
 }
 
 export interface OffertaClassificata extends Offerta {
+  costoEffettivo: number;
   risultato: CalcResult;
 }
 
