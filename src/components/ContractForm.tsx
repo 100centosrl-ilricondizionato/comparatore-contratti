@@ -1,5 +1,6 @@
 import type { Categoria, ComparatoreInputs } from "../types";
 import { UNITA } from "../types";
+import NumberInput from "./NumberInput";
 
 interface Props {
   value: ComparatoreInputs;
@@ -25,12 +26,10 @@ function NumberField({
         {label}
       </span>
       <div className="mt-1 flex items-baseline gap-2 border-b-2 pb-1" style={{ borderColor: "var(--color-line)" }}>
-        <input
-          type="number"
-          inputMode="decimal"
+        <NumberInput
+          value={value}
+          onChange={onValue}
           step={step}
-          value={Number.isNaN(value) ? "" : value}
-          onChange={(e) => onValue(e.target.value === "" ? 0 : parseFloat(e.target.value))}
           className="w-full bg-transparent font-mono text-xl outline-none tabular"
           style={{ fontFamily: "var(--font-mono)", color: "var(--color-ink)" }}
           placeholder="0"
