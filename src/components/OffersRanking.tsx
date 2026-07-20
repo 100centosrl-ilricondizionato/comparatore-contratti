@@ -72,7 +72,11 @@ export default function OffersRanking({ categoria, classifica, selezionataId, on
                   </span>
                 </div>
                 <div className="text-xs mt-0.5" style={{ color: "var(--color-ink-soft)" }}>
-                  {o.costoUnitario.toLocaleString("it-IT", { minimumFractionDigits: 3 })} {unita.costo} ·{" "}
+                  {o.costoEffettivo.toLocaleString("it-IT", { minimumFractionDigits: 3 })} {unita.costo}
+                  {categoria === "luce" && o.tipoPrezzo === "variabile" && (
+                    <> (PUN + {(o.spreadPun ?? 0).toLocaleString("it-IT", { minimumFractionDigits: 3 })})</>
+                  )}
+                  {" · "}
                   {formatEuro(o.spesaFissaMensile)}/mese
                 </div>
                 {o.note && (
