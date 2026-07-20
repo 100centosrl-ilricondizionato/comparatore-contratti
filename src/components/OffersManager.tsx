@@ -8,12 +8,39 @@ interface Props {
   onClose: () => void;
 }
 
-const VUOTA = { nome: "", costoUnitario: 0, spesaFissaMensile: 0, attiva: true, note: "" };
+const VUOTA = {
+  nome: "",
+  tipoPrezzo: "fisso" as const,
+  costoUnitario: 0,
+  spesaFissaMensile: 0,
+  attiva: true,
+  note: "",
+};
+
+function SelectTipoPrezzo({
+  value,
+  onChange,
+}: {
+  value: "fisso" | "variabile";
+  onChange: (v: "fisso" | "variabile") => void;
+}) {
+  return (
+    <select
+      value={value}
+      onChange={(e) => onChange(e.target.value as "fisso" | "variabile")}
+      className="rounded-lg px-3 py-2 text-sm outline-none border bg-white"
+      style={{ borderColor: "var(--color-line)" }}
+    >
+      <option value="fisso">Fisso</option>
+      <option value="variabile">Variabile</option>
+    </select>
+  );
+}
 
 export default function OffersManager({ categoria, onClose }: Props) {
   const { offerte, loading, errore, aggiungiOfferta, aggiornaOfferta, eliminaOfferta } =
     useOfferte(categoria);
-  const [nuova, setNuova] = useState(VUOTA);
+  const [nuova, setNuova] = useState<Omit<Offerta, "id">>(VUOTA);
   const [editId, setEditId] = useState<string | null>(null);
   const [editBozza, setEditBozza] = useState<Omit<Offerta, "id"> | null>(null);
   const unita = UNITA[categoria];
@@ -28,6 +55,7 @@ export default function OffersManager({ categoria, onClose }: Props) {
     setEditId(o.id);
     setEditBozza({
       nome: o.nome,
+      tipoPrezzo: o.tipoPrezzo ?? "fisso",
       costoUnitario: o.costoUnitario,
       spesaFissaMensile: o.spesaFissaMensile,
       attiva: o.attiva,
@@ -72,13 +100,17 @@ export default function OffersManager({ categoria, onClose }: Props) {
           <div className="text-[11px] uppercase tracking-wide font-semibold mb-3" style={{ color: "var(--color-ink-soft)" }}>
             Nuova offerta
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-5 gap-3">
             <input
               placeholder="Nome offerta"
               value={nuova.nome}
               onChange={(e) => setNuova({ ...nuova, nome: e.target.value })}
               className="sm:col-span-2 rounded-lg px-3 py-2 text-sm outline-none border"
               style={{ borderColor: "var(--color-line)" }}
+            />
+            <SelectTipoPrezzo
+              value={nuova.tipoPrezzo}
+              onChange={(v) => setNuova({ ...nuova, tipoPrezzo: v })}
             />
             <input
               type="number"
@@ -99,6 +131,13 @@ export default function OffersManager({ categoria, onClose }: Props) {
               style={{ borderColor: "var(--color-line)" }}
             />
           </div>
+          <input
+            placeholder="Note (es. obbligo email, obbligo SDD, altre condizioni)"
+            value={nuova.note}
+            onChange={(e) => setNuova({ ...nuova, note: e.target.value })}
+            className="mt-3 w-full rounded-lg px-3 py-2 text-sm outline-none border"
+            style={{ borderColor: "var(--color-line)" }}
+          />
           <button
             onClick={handleAggiungi}
             className="mt-3 w-full sm:w-auto px-4 py-2 rounded-lg text-sm font-semibold"
@@ -122,30 +161,43 @@ export default function OffersManager({ categoria, onClose }: Props) {
             {offerte.map((o) => (
               <div key={o.id} className="rounded-xl p-3 border" style={{ borderColor: "var(--color-line-soft)" }}>
                 {editId === o.id && editBozza ? (
-                  <div className="grid grid-cols-1 sm:grid-cols-4 gap-2">
+                  <div className="space-y-2">
+                    <div className="grid grid-cols-1 sm:grid-cols-5 gap-2">
+                      <input
+                        value={editBozza.nome}
+                        onChange={(e) => setEditBozza({ ...editBozza, nome: e.target.value })}
+                        className="sm:col-span-2 rounded-lg px-2 py-1.5 text-sm border outline-none"
+                        style={{ borderColor: "var(--color-line)" }}
+                      />
+                      <SelectTipoPrezzo
+                        value={editBozza.tipoPrezzo}
+                        onChange={(v) => setEditBozza({ ...editBozza, tipoPrezzo: v })}
+                      />
+                      <input
+                        type="number"
+                        step="0.001"
+                        value={editBozza.costoUnitario}
+                        onChange={(e) => setEditBozza({ ...editBozza, costoUnitario: parseFloat(e.target.value) || 0 })}
+                        className="rounded-lg px-2 py-1.5 text-sm border outline-none"
+                        style={{ borderColor: "var(--color-line)" }}
+                      />
+                      <input
+                        type="number"
+                        step="0.01"
+                        value={editBozza.spesaFissaMensile}
+                        onChange={(e) => setEditBozza({ ...editBozza, spesaFissaMensile: parseFloat(e.target.value) || 0 })}
+                        className="rounded-lg px-2 py-1.5 text-sm border outline-none"
+                        style={{ borderColor: "var(--color-line)" }}
+                      />
+                    </div>
                     <input
-                      value={editBozza.nome}
-                      onChange={(e) => setEditBozza({ ...editBozza, nome: e.target.value })}
-                      className="sm:col-span-2 rounded-lg px-2 py-1.5 text-sm border outline-none"
+                      placeholder="Note (es. obbligo email, obbligo SDD, altre condizioni)"
+                      value={editBozza.note}
+                      onChange={(e) => setEditBozza({ ...editBozza, note: e.target.value })}
+                      className="w-full rounded-lg px-2 py-1.5 text-sm border outline-none"
                       style={{ borderColor: "var(--color-line)" }}
                     />
-                    <input
-                      type="number"
-                      step="0.001"
-                      value={editBozza.costoUnitario}
-                      onChange={(e) => setEditBozza({ ...editBozza, costoUnitario: parseFloat(e.target.value) || 0 })}
-                      className="rounded-lg px-2 py-1.5 text-sm border outline-none"
-                      style={{ borderColor: "var(--color-line)" }}
-                    />
-                    <input
-                      type="number"
-                      step="0.01"
-                      value={editBozza.spesaFissaMensile}
-                      onChange={(e) => setEditBozza({ ...editBozza, spesaFissaMensile: parseFloat(e.target.value) || 0 })}
-                      className="rounded-lg px-2 py-1.5 text-sm border outline-none"
-                      style={{ borderColor: "var(--color-line)" }}
-                    />
-                    <div className="sm:col-span-4 flex gap-2 justify-end mt-1">
+                    <div className="flex gap-2 justify-end">
                       <button
                         onClick={() => { setEditId(null); setEditBozza(null); }}
                         className="text-xs px-3 py-1.5 rounded-lg"
@@ -165,10 +217,16 @@ export default function OffersManager({ categoria, onClose }: Props) {
                 ) : (
                   <div className="flex items-center justify-between gap-3">
                     <div className="min-w-0">
-                      <div className="font-semibold text-sm truncate" style={{ fontFamily: "var(--font-display)" }}>
+                      <div className="font-semibold text-sm truncate flex items-center gap-2" style={{ fontFamily: "var(--font-display)" }}>
                         {o.nome}
+                        <span
+                          className="text-[9px] font-semibold uppercase px-1.5 py-0.5 rounded"
+                          style={{ background: "var(--color-paper-dim)", color: "var(--color-ink-soft)" }}
+                        >
+                          {(o.tipoPrezzo ?? "fisso") === "fisso" ? "Fisso" : "Variabile"}
+                        </span>
                         {!o.attiva && (
-                          <span className="ml-2 text-[10px] font-normal uppercase" style={{ color: "var(--color-ink-soft)" }}>
+                          <span className="text-[10px] font-normal uppercase" style={{ color: "var(--color-ink-soft)" }}>
                             disattivata
                           </span>
                         )}
@@ -177,6 +235,11 @@ export default function OffersManager({ categoria, onClose }: Props) {
                         {o.costoUnitario.toLocaleString("it-IT", { minimumFractionDigits: 3 })} {unita.costo} ·{" "}
                         {o.spesaFissaMensile.toLocaleString("it-IT", { minimumFractionDigits: 2 })} €/mese
                       </div>
+                      {o.note && (
+                        <div className="text-xs mt-0.5 italic" style={{ color: "var(--color-ink-soft)" }}>
+                          {o.note}
+                        </div>
+                      )}
                     </div>
                     <div className="flex gap-2 shrink-0">
                       <button
