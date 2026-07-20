@@ -1,4 +1,15 @@
-import type { ContrattoInput, CalcResult, Offerta, OffertaClassificata } from "./types";
+import type { Categoria, ContrattoInput, CalcResult, Offerta, OffertaClassificata } from "./types";
+
+export function costoEffettivoOfferta(
+  o: Offerta,
+  categoria: Categoria,
+  punValore: number | null
+): number {
+  if (categoria === "luce" && o.tipoPrezzo === "variabile") {
+    return (punValore ?? 0) + (o.spreadPun ?? 0);
+  }
+  return o.costoUnitario;
+}
 
 export function calcolaRisparmio(
   consumoAnnuo: number,
@@ -33,18 +44,24 @@ export function calcolaRisparmio(
 
 export function classificaOfferte(
   offerte: Offerta[],
+  categoria: Categoria,
   consumoAnnuo: number,
-  attuale: ContrattoInput
+  attuale: ContrattoInput,
+  punValore: number | null
 ): OffertaClassificata[] {
   return offerte
     .filter((o) => o.attiva)
-    .map((o) => ({
-      ...o,
-      risultato: calcolaRisparmio(consumoAnnuo, attuale, {
-        costoUnitario: o.costoUnitario,
-        spesaFissaMensile: o.spesaFissaMensile,
-      }),
-    }))
+    .map((o) => {
+      const costoEffettivo = costoEffettivoOfferta(o, categoria, punValore);
+      return {
+        ...o,
+        costoEffettivo,
+        risultato: calcolaRisparmio(consumoAnnuo, attuale, {
+          costoUnitario: costoEffettivo,
+          spesaFissaMensile: o.spesaFissaMensile,
+        }),
+      };
+    })
     .sort((a, b) => b.risultato.risparmioAnnuo - a.risultato.risparmioAnnuo);
 }
 
