@@ -1,11 +1,13 @@
 import { forwardRef } from "react";
-import type { LuceInputs, CalcResult } from "../types";
+import type { ComparatoreInputs, CalcResult } from "../types";
+import { UNITA } from "../types";
 import { formatEuro, formatNumero } from "../calc";
 import MeterGauge from "./MeterGauge";
 
 interface Props {
-  inputs: LuceInputs;
+  inputs: ComparatoreInputs;
   result: CalcResult;
+  offerta: { nome: string; costoUnitario: number; spesaFissaMensile: number };
 }
 
 const oggi = new Date().toLocaleDateString("it-IT", {
@@ -14,8 +16,10 @@ const oggi = new Date().toLocaleDateString("it-IT", {
   year: "numeric",
 });
 
-const PdfReport = forwardRef<HTMLDivElement, Props>(({ inputs, result }, ref) => {
+const PdfReport = forwardRef<HTMLDivElement, Props>(({ inputs, result, offerta }, ref) => {
   const isPositive = result.risparmioAnnuo >= 0;
+  const unita = UNITA[inputs.categoria];
+  const etichettaCategoria = inputs.categoria === "luce" ? "energia elettrica" : "gas";
 
   return (
     <div
@@ -28,10 +32,11 @@ const PdfReport = forwardRef<HTMLDivElement, Props>(({ inputs, result }, ref) =>
         fontFamily: "Inter, sans-serif",
         padding: "56px 60px",
         boxSizing: "border-box",
+        position: "relative",
       }}
     >
       {/* header */}
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 40 }}>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 32 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
           <div
             style={{
@@ -55,7 +60,7 @@ const PdfReport = forwardRef<HTMLDivElement, Props>(({ inputs, result }, ref) =>
               100Cento
             </div>
             <div style={{ fontSize: 11, color: "#3D544F", letterSpacing: 1, textTransform: "uppercase" }}>
-              Confronto contratto energia elettrica
+              Confronto contratto {etichettaCategoria}
             </div>
           </div>
         </div>
@@ -63,6 +68,21 @@ const PdfReport = forwardRef<HTMLDivElement, Props>(({ inputs, result }, ref) =>
           <div>{oggi}</div>
           {inputs.clienteNome && <div style={{ marginTop: 2, fontWeight: 600, color: "#10312C" }}>{inputs.clienteNome}</div>}
         </div>
+      </div>
+
+      <div
+        style={{
+          display: "inline-block",
+          fontSize: 12,
+          fontWeight: 600,
+          color: "#1F7A54",
+          background: "#DCEEE3",
+          padding: "5px 12px",
+          borderRadius: 999,
+          marginBottom: 20,
+        }}
+      >
+        Offerta proposta: {offerta.nome}
       </div>
 
       {/* hero result */}
@@ -108,27 +128,27 @@ const PdfReport = forwardRef<HTMLDivElement, Props>(({ inputs, result }, ref) =>
           <tr>
             <th style={th}></th>
             <th style={th}>Contratto attuale</th>
-            <th style={th}>Offerta 100Cento</th>
+            <th style={th}>{offerta.nome}</th>
           </tr>
         </thead>
         <tbody>
           <tr>
             <td style={tdLabel}>Consumo annuo</td>
             <td style={td} colSpan={2}>
-              {formatNumero(inputs.consumoAnnuo)} kWh
+              {formatNumero(inputs.consumoAnnuo)} {unita.consumo}
             </td>
           </tr>
           <tr>
-            <td style={tdLabel}>Costo energia</td>
-            <td style={td}>{inputs.attuale.costoKwh.toLocaleString("it-IT", { minimumFractionDigits: 3 })} €/kWh</td>
+            <td style={tdLabel}>Costo</td>
+            <td style={td}>{inputs.attuale.costoUnitario.toLocaleString("it-IT", { minimumFractionDigits: 3 })} {unita.costo}</td>
             <td style={{ ...td, color: "#1F7A54", fontWeight: 600 }}>
-              {inputs.nuovo.costoKwh.toLocaleString("it-IT", { minimumFractionDigits: 3 })} €/kWh
+              {offerta.costoUnitario.toLocaleString("it-IT", { minimumFractionDigits: 3 })} {unita.costo}
             </td>
           </tr>
           <tr>
-            <td style={tdLabel}>Spesa vendita (POD)</td>
-            <td style={td}>{formatEuro(inputs.attuale.podMensile)} / mese</td>
-            <td style={{ ...td, color: "#1F7A54", fontWeight: 600 }}>{formatEuro(inputs.nuovo.podMensile)} / mese</td>
+            <td style={tdLabel}>Spesa vendita</td>
+            <td style={td}>{formatEuro(inputs.attuale.spesaFissaMensile)} / mese</td>
+            <td style={{ ...td, color: "#1F7A54", fontWeight: 600 }}>{formatEuro(offerta.spesaFissaMensile)} / mese</td>
           </tr>
           <tr style={{ borderTop: "2px solid #10312C" }}>
             <td style={{ ...tdLabel, fontWeight: 700, paddingTop: 14 }}>Spesa annua totale</td>
@@ -142,7 +162,7 @@ const PdfReport = forwardRef<HTMLDivElement, Props>(({ inputs, result }, ref) =>
 
       <div style={{ fontSize: 11, color: "#3D544F", lineHeight: 1.6 }}>
         Simulazione basata sul consumo annuo indicato e sulle condizioni economiche attuali del cliente,
-        confrontate con l'offerta 100Cento in vigore alla data del documento. I valori sono stime e possono
+        confrontate con l'offerta 100Cento selezionata alla data del documento. I valori sono stime e possono
         variare in base ai consumi effettivi e agli aggiornamenti tariffari.
       </div>
 
