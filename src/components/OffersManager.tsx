@@ -233,4 +233,41 @@ export default function OffersManager({ categoria, onClose }: Props) {
                         {o.spesaFissaMensile.toLocaleString("it-IT", { minimumFractionDigits: 2 })} €/mese
                       </div>
                       {o.note && (
-                        <div className="text-xs mt-0.5 italic"
+                        <div className="text-xs mt-0.5 italic" style={{ color: "var(--color-ink-soft)" }}>
+                          {o.note}
+                        </div>
+                      )}
+                    </div>
+                    <div className="flex gap-2 shrink-0">
+                      <button
+                        onClick={() => aggiornaOfferta(o.id, { attiva: !o.attiva })}
+                        className="text-xs px-2.5 py-1.5 rounded-lg"
+                        style={{ background: "var(--color-paper-dim)" }}
+                      >
+                        {o.attiva ? "Disattiva" : "Attiva"}
+                      </button>
+                      <button
+                        onClick={() => iniziaModifica(o)}
+                        className="text-xs px-2.5 py-1.5 rounded-lg"
+                        style={{ background: "var(--color-paper-dim)" }}
+                      >
+                        Modifica
+                      </button>
+                      <button
+                        onClick={() => eliminaOfferta(o.id)}
+                        className="text-xs px-2.5 py-1.5 rounded-lg"
+                        style={{ background: "#F7DEDB", color: "#8A2E22" }}
+                      >
+                        Elimina
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
