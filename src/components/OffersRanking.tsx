@@ -52,7 +52,7 @@ export default function OffersRanking({ categoria, classifica, selezionataId, on
               }}
             >
               <div className="min-w-0">
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 flex-wrap">
                   {migliore && (
                     <span
                       className="text-[9px] font-bold uppercase px-1.5 py-0.5 rounded"
@@ -64,11 +64,22 @@ export default function OffersRanking({ categoria, classifica, selezionataId, on
                   <span className="font-semibold text-sm truncate" style={{ fontFamily: "var(--font-display)" }}>
                     {o.nome}
                   </span>
+                  <span
+                    className="text-[9px] font-semibold uppercase px-1.5 py-0.5 rounded"
+                    style={{ background: "var(--color-paper-dim)", color: "var(--color-ink-soft)" }}
+                  >
+                    {(o.tipoPrezzo ?? "fisso") === "fisso" ? "Fisso" : "Variabile"}
+                  </span>
                 </div>
                 <div className="text-xs mt-0.5" style={{ color: "var(--color-ink-soft)" }}>
                   {o.costoUnitario.toLocaleString("it-IT", { minimumFractionDigits: 3 })} {unita.costo} ·{" "}
                   {formatEuro(o.spesaFissaMensile)}/mese
                 </div>
+                {o.note && (
+                  <div className="text-xs mt-0.5 italic" style={{ color: "var(--color-ink-soft)" }}>
+                    {o.note}
+                  </div>
+                )}
               </div>
               <div className="text-right shrink-0">
                 <div
