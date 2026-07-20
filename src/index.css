@@ -1,0 +1,34 @@
+@import "tailwindcss";
+
+@theme {
+  --font-display: "Space Grotesk", sans-serif;
+  --font-body: "Inter", sans-serif;
+  --font-mono: "IBM Plex Mono", monospace;
+
+  --color-paper: #EDF1EF;
+  --color-paper-dim: #E2E8E5;
+  --color-ink: #10312C;
+  --color-ink-soft: #3D544F;
+  --color-line: #C7D2CD;
+  --color-line-soft: #D9E1DD;
+  --color-old: #8A5A3E;
+  --color-old-soft: #EFE3D8;
+  --color-spark: #F2A93B;
+  --color-spark-dark: #C77F1B;
+  --color-good: #1F7A54;
+  --color-good-soft: #DCEEE3;
+  --color-panel: #FFFFFF;
+}
+
+html {
+  background: var(--color-paper);
+}
+
+body {
+  font-family: var(--font-body);
+  color: var(--color-ink);
+}
+
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
