@@ -8,6 +8,7 @@ export interface ContrattoInput {
 export interface Offerta {
   id: string;
   nome: string;
+  tipoPrezzo: "fisso" | "variabile";
   costoUnitario: number;
   spesaFissaMensile: number;
   attiva: boolean;
