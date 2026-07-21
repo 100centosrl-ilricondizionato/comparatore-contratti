@@ -84,99 +84,102 @@ export default function OffersManager({ categoria, onClose }: Props) {
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-start sm:items-center justify-center p-3 sm:p-6 overflow-y-auto" style={{ background: "rgba(16,49,44,0.55)" }}>
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6" style={{ background: "rgba(16,49,44,0.55)" }}>
       <div
-        className="w-full max-w-2xl rounded-2xl p-5 sm:p-6 my-6"
-        style={{ background: "var(--color-panel)" }}
+        className="w-full max-w-2xl rounded-2xl flex flex-col"
+        style={{ background: "var(--color-panel)", maxHeight: "90vh" }}
       >
-        <div className="flex items-center justify-between mb-5">
-          <h2 className="text-lg font-bold" style={{ fontFamily: "var(--font-display)" }}>
-            Offerte {categoria === "luce" ? "Luce" : "Gas"}
-          </h2>
-          <button
-            onClick={onClose}
-            className="text-sm px-3 py-1.5 rounded-lg"
-            style={{ background: "var(--color-paper-dim)", color: "var(--color-ink)" }}
-          >
-            Chiudi
-          </button>
-        </div>
+        <div className="p-5 sm:p-6 pb-0 shrink-0">
+          <div className="flex items-center justify-between mb-5">
+            <h2 className="text-lg font-bold" style={{ fontFamily: "var(--font-display)" }}>
+              Offerte {categoria === "luce" ? "Luce" : "Gas"}
+            </h2>
+            <button
+              onClick={onClose}
+              className="text-sm px-3 py-1.5 rounded-lg"
+              style={{ background: "var(--color-paper-dim)", color: "var(--color-ink)" }}
+            >
+              Chiudi
+            </button>
+          </div>
 
-        {errore && (
-          <div className="mb-4 text-sm rounded-lg p-3" style={{ background: "#F7DEDB", color: "#8A2E22" }}>
-            Errore di connessione a Firebase: {errore}
-          </div>
-        )}
-
-        {/* form nuova offerta */}
-        <div className="rounded-xl p-4 mb-5" style={{ background: "var(--color-paper)" }}>
-          <div className="text-[11px] uppercase tracking-wide font-semibold mb-3" style={{ color: "var(--color-ink-soft)" }}>
-            Nuova offerta
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-5 gap-3">
-            <input
-              placeholder="Nome offerta"
-              value={nuova.nome}
-              onChange={(e) => setNuova({ ...nuova, nome: e.target.value })}
-              className="sm:col-span-2 rounded-lg px-3 py-2 text-sm outline-none border"
-              style={{ borderColor: "var(--color-line)" }}
-            />
-            <SelectTipoPrezzo
-              value={nuova.tipoPrezzo}
-              onChange={(v) => setNuova({ ...nuova, tipoPrezzo: v })}
-            />
-            {nuovaEVariabileLuce ? (
-              <NumberInput
-                step="0.001"
-                placeholder="Spread su PUN €/kWh"
-                value={nuova.spreadPun ?? 0}
-                onChange={(n) => setNuova({ ...nuova, spreadPun: n })}
-                className="rounded-lg px-3 py-2 text-sm outline-none border"
-                style={{ borderColor: "var(--color-line)" }}
-              />
-            ) : (
-              <NumberInput
-                step="0.001"
-                placeholder={unita.costo}
-                value={nuova.costoUnitario}
-                onChange={(n) => setNuova({ ...nuova, costoUnitario: n })}
-                className="rounded-lg px-3 py-2 text-sm outline-none border"
-                style={{ borderColor: "var(--color-line)" }}
-              />
-            )}
-            <NumberInput
-              step="0.01"
-              placeholder="Spesa fissa €/mese"
-              value={nuova.spesaFissaMensile}
-              onChange={(n) => setNuova({ ...nuova, spesaFissaMensile: n })}
-              className="rounded-lg px-3 py-2 text-sm outline-none border"
-              style={{ borderColor: "var(--color-line)" }}
-            />
-          </div>
-          {nuovaEVariabileLuce && (
-            <div className="mt-2 text-xs" style={{ color: "var(--color-ink-soft)" }}>
-              {pun
-                ? `Prezzo di oggi: PUN (${pun.valore.toLocaleString("it-IT", { minimumFractionDigits: 3 })}) + spread (${(nuova.spreadPun ?? 0).toLocaleString("it-IT", { minimumFractionDigits: 3 })}) = ${prezzoLive(nuova.spreadPun ?? 0)!.toLocaleString("it-IT", { minimumFractionDigits: 3 })} €/kWh`
-                : "PUN non ancora impostato: aggiornalo dal badge in alto per vedere il prezzo attuale."}
+          {errore && (
+            <div className="mb-4 text-sm rounded-lg p-3" style={{ background: "#F7DEDB", color: "#8A2E22" }}>
+              Errore di connessione a Firebase: {errore}
             </div>
           )}
-          <input
-            placeholder="Note (es. obbligo email, obbligo SDD, altre condizioni)"
-            value={nuova.note}
-            onChange={(e) => setNuova({ ...nuova, note: e.target.value })}
-            className="mt-3 w-full rounded-lg px-3 py-2 text-sm outline-none border"
-            style={{ borderColor: "var(--color-line)" }}
-          />
-          <button
-            onClick={handleAggiungi}
-            className="mt-3 w-full sm:w-auto px-4 py-2 rounded-lg text-sm font-semibold"
-            style={{ background: "var(--color-spark)", color: "var(--color-ink)" }}
-          >
-            + Aggiungi offerta
-          </button>
+
+          {/* form nuova offerta */}
+          <div className="rounded-xl p-4 mb-5" style={{ background: "var(--color-paper)" }}>
+            <div className="text-[11px] uppercase tracking-wide font-semibold mb-3" style={{ color: "var(--color-ink-soft)" }}>
+              Nuova offerta
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-5 gap-3">
+              <input
+                placeholder="Nome offerta"
+                value={nuova.nome}
+                onChange={(e) => setNuova({ ...nuova, nome: e.target.value })}
+                className="sm:col-span-2 rounded-lg px-3 py-2 text-sm outline-none border"
+                style={{ borderColor: "var(--color-line)" }}
+              />
+              <SelectTipoPrezzo
+                value={nuova.tipoPrezzo}
+                onChange={(v) => setNuova({ ...nuova, tipoPrezzo: v })}
+              />
+              {nuovaEVariabileLuce ? (
+                <NumberInput
+                  step="0.001"
+                  placeholder="Spread su PUN €/kWh"
+                  value={nuova.spreadPun ?? 0}
+                  onChange={(n) => setNuova({ ...nuova, spreadPun: n })}
+                  className="rounded-lg px-3 py-2 text-sm outline-none border"
+                  style={{ borderColor: "var(--color-line)" }}
+                />
+              ) : (
+                <NumberInput
+                  step="0.001"
+                  placeholder={unita.costo}
+                  value={nuova.costoUnitario}
+                  onChange={(n) => setNuova({ ...nuova, costoUnitario: n })}
+                  className="rounded-lg px-3 py-2 text-sm outline-none border"
+                  style={{ borderColor: "var(--color-line)" }}
+                />
+              )}
+              <NumberInput
+                step="0.01"
+                placeholder="Spesa fissa €/mese"
+                value={nuova.spesaFissaMensile}
+                onChange={(n) => setNuova({ ...nuova, spesaFissaMensile: n })}
+                className="rounded-lg px-3 py-2 text-sm outline-none border"
+                style={{ borderColor: "var(--color-line)" }}
+              />
+            </div>
+            {nuovaEVariabileLuce && (
+              <div className="mt-2 text-xs" style={{ color: "var(--color-ink-soft)" }}>
+                {pun
+                  ? `Prezzo di oggi: PUN (${pun.valore.toLocaleString("it-IT", { minimumFractionDigits: 3 })}) + spread (${(nuova.spreadPun ?? 0).toLocaleString("it-IT", { minimumFractionDigits: 3 })}) = ${prezzoLive(nuova.spreadPun ?? 0)!.toLocaleString("it-IT", { minimumFractionDigits: 3 })} €/kWh`
+                  : "PUN non ancora impostato: aggiornalo dal badge in alto per vedere il prezzo attuale."}
+              </div>
+            )}
+            <input
+              placeholder="Note (es. obbligo email, obbligo SDD, altre condizioni)"
+              value={nuova.note}
+              onChange={(e) => setNuova({ ...nuova, note: e.target.value })}
+              className="mt-3 w-full rounded-lg px-3 py-2 text-sm outline-none border"
+              style={{ borderColor: "var(--color-line)" }}
+            />
+            <button
+              onClick={handleAggiungi}
+              className="mt-3 w-full sm:w-auto px-4 py-2 rounded-lg text-sm font-semibold"
+              style={{ background: "var(--color-spark)", color: "var(--color-ink)" }}
+            >
+              + Aggiungi offerta
+            </button>
+          </div>
         </div>
 
-        {/* elenco offerte */}
+        {/* elenco offerte: unica parte che scorre */}
+        <div className="px-5 sm:px-6 pb-5 sm:pb-6 overflow-y-auto min-h-0">
         {loading ? (
           <div className="text-sm py-6 text-center" style={{ color: "var(--color-ink-soft)" }}>
             Caricamento…
@@ -322,6 +325,7 @@ export default function OffersManager({ categoria, onClose }: Props) {
             ))}
           </div>
         )}
+        </div>
       </div>
     </div>
   );
