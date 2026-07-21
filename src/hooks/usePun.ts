@@ -1,35 +1,38 @@
 import { useEffect, useState } from "react";
 import { doc, onSnapshot, setDoc } from "firebase/firestore";
 import { db } from "../firebase";
+import type { Categoria } from "../types";
 
-interface PunData {
+interface IndiceData {
   valore: number;
   aggiornatoIl: string; // ISO date string
 }
 
-const DOC_REF_PATH = ["impostazioni", "pun_luce"] as const;
+// documento Firestore condiviso per ciascun indice di mercato:
+// PUN per la luce, PSV per il gas
+const DOC_ID: Record<Categoria, string> = {
+  luce: "pun_luce",
+  gas: "psv_gas",
+};
 
-export function usePun() {
-  const [pun, setPun] = useState<PunData | null>(null);
+export function useIndiceMercato(categoria: Categoria) {
+  const [indice, setIndice] = useState<IndiceData | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const ref = doc(db, ...DOC_REF_PATH);
+    setLoading(true);
+    const ref = doc(db, "impostazioni", DOC_ID[categoria]);
     const unsub = onSnapshot(ref, (snap) => {
-      if (snap.exists()) {
-        setPun(snap.data() as PunData);
-      } else {
-        setPun(null);
-      }
+      setIndice(snap.exists() ? (snap.data() as IndiceData) : null);
       setLoading(false);
     });
     return () => unsub();
-  }, []);
+  }, [categoria]);
 
-  async function aggiornaPun(valore: number) {
-    const ref = doc(db, ...DOC_REF_PATH);
+  async function aggiornaIndice(valore: number) {
+    const ref = doc(db, "impostazioni", DOC_ID[categoria]);
     await setDoc(ref, { valore, aggiornatoIl: new Date().toISOString() });
   }
 
-  return { pun, loading, aggiornaPun };
+  return { indice, loading, aggiornaIndice };
 }
