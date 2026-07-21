@@ -85,6 +85,24 @@ export default function ContractForm({ value, onChange }: Props) {
           className="mt-1 w-full bg-transparent border-b-2 pb-1 outline-none text-lg"
           style={{ borderColor: "var(--color-line)", fontFamily: "var(--font-display)" }}
         />
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-3">
+          <input
+            type="email"
+            value={value.clienteEmail}
+            onChange={(e) => onChange({ ...value, clienteEmail: e.target.value })}
+            placeholder="Email (facoltativa)"
+            className="w-full bg-transparent border-b-2 pb-1 outline-none text-sm"
+            style={{ borderColor: "var(--color-line)" }}
+          />
+          <input
+            type="tel"
+            value={value.clienteTelefono}
+            onChange={(e) => onChange({ ...value, clienteTelefono: e.target.value })}
+            placeholder="Cellulare (facoltativo)"
+            className="w-full bg-transparent border-b-2 pb-1 outline-none text-sm"
+            style={{ borderColor: "var(--color-line)" }}
+          />
+        </div>
         <div className="mt-4">
           <NumberField
             label="Consumo stimato"
