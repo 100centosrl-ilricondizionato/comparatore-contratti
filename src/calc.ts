@@ -1,12 +1,11 @@
-import type { Categoria, ContrattoInput, CalcResult, Offerta, OffertaClassificata } from "./types";
+import type { ContrattoInput, CalcResult, Offerta, OffertaClassificata } from "./types";
 
 export function costoEffettivoOfferta(
   o: Offerta,
-  categoria: Categoria,
-  punValore: number | null
+  indiceValore: number | null
 ): number {
-  if (categoria === "luce" && o.tipoPrezzo === "variabile") {
-    return (punValore ?? 0) + (o.spreadPun ?? 0);
+  if (o.tipoPrezzo === "variabile") {
+    return (indiceValore ?? 0) + (o.spreadIndice ?? 0);
   }
   return o.costoUnitario;
 }
@@ -44,15 +43,14 @@ export function calcolaRisparmio(
 
 export function classificaOfferte(
   offerte: Offerta[],
-  categoria: Categoria,
   consumoAnnuo: number,
   attuale: ContrattoInput,
-  punValore: number | null
+  indiceValore: number | null
 ): OffertaClassificata[] {
   return offerte
     .filter((o) => o.attiva)
     .map((o) => {
-      const costoEffettivo = costoEffettivoOfferta(o, categoria, punValore);
+      const costoEffettivo = costoEffettivoOfferta(o, indiceValore);
       return {
         ...o,
         costoEffettivo,
