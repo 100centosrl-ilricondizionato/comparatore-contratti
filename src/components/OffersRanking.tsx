@@ -1,5 +1,5 @@
 import type { Categoria, OffertaClassificata } from "../types";
-import { UNITA } from "../types";
+import { UNITA, ETICHETTA_INDICE } from "../types";
 import { formatEuro, formatNumero } from "../calc";
 
 interface Props {
@@ -73,8 +73,8 @@ export default function OffersRanking({ categoria, classifica, selezionataId, on
                 </div>
                 <div className="text-xs mt-0.5" style={{ color: "var(--color-ink-soft)" }}>
                   {o.costoEffettivo.toLocaleString("it-IT", { minimumFractionDigits: 3 })} {unita.costo}
-                  {categoria === "luce" && o.tipoPrezzo === "variabile" && (
-                    <> (PUN + {(o.spreadPun ?? 0).toLocaleString("it-IT", { minimumFractionDigits: 3 })})</>
+                  {o.tipoPrezzo === "variabile" && (
+                    <> ({ETICHETTA_INDICE[categoria]} + {(o.spreadIndice ?? 0).toLocaleString("it-IT", { minimumFractionDigits: 3 })})</>
                   )}
                   {" · "}
                   {formatEuro(o.spesaFissaMensile)}/mese
