@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import type { ComparatoreInputs } from "./types";
 import { classificaOfferte } from "./calc";
 import { useOfferte } from "./hooks/useOfferte";
-import { usePun } from "./hooks/usePun";
+import { useIndiceMercato } from "./hooks/usePun";
 import ContractForm from "./components/ContractForm";
 import ResultPanel from "./components/ResultPanel";
 import PdfReport from "./components/PdfReport";
@@ -25,11 +25,11 @@ export default function App() {
   const reportRef = useRef<HTMLDivElement>(null);
 
   const { offerte, loading } = useOfferte(inputs.categoria);
-  const { pun } = usePun();
+  const { indice } = useIndiceMercato(inputs.categoria);
 
   const classifica = useMemo(
-    () => classificaOfferte(offerte, inputs.categoria, inputs.consumoAnnuo, inputs.attuale, pun?.valore ?? null),
-    [offerte, inputs.categoria, inputs.consumoAnnuo, inputs.attuale, pun]
+    () => classificaOfferte(offerte, inputs.consumoAnnuo, inputs.attuale, indice?.valore ?? null),
+    [offerte, inputs.consumoAnnuo, inputs.attuale, indice]
   );
 
   // quando cambia la classifica (nuove offerte, cambio categoria, ecc.)
@@ -98,7 +98,7 @@ export default function App() {
             </div>
           </div>
           <div className="flex items-center gap-2 shrink-0">
-            {inputs.categoria === "luce" && <PunBadge />}
+            <PunBadge categoria={inputs.categoria} />
             <button
               onClick={() => setGestioneAperta(true)}
               className="text-xs sm:text-sm px-3 py-2 rounded-lg font-semibold shrink-0"
