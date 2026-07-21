@@ -1,6 +1,12 @@
 import { useState } from "react";
-import { usePun } from "../hooks/usePun";
+import type { Categoria } from "../types";
+import { UNITA, ETICHETTA_INDICE } from "../types";
+import { useIndiceMercato } from "../hooks/usePun";
 import NumberInput from "./NumberInput";
+
+interface Props {
+  categoria: Categoria;
+}
 
 function descriviData(iso: string): string {
   const data = new Date(iso);
@@ -11,18 +17,20 @@ function descriviData(iso: string): string {
   return `aggiornato ${giorni} giorni fa`;
 }
 
-export default function PunBadge() {
-  const { pun, loading, aggiornaPun } = usePun();
+export default function IndiceBadge({ categoria }: Props) {
+  const { indice, loading, aggiornaIndice } = useIndiceMercato(categoria);
   const [editing, setEditing] = useState(false);
   const [bozza, setBozza] = useState(0);
+  const etichetta = ETICHETTA_INDICE[categoria];
+  const unitaCosto = UNITA[categoria].costo;
 
   function apriModifica() {
-    setBozza(pun?.valore ?? 0);
+    setBozza(indice?.valore ?? 0);
     setEditing(true);
   }
 
   async function salva() {
-    await aggiornaPun(bozza);
+    await aggiornaIndice(bozza);
     setEditing(false);
   }
 
@@ -35,13 +43,13 @@ export default function PunBadge() {
         style={{ background: "var(--color-panel)", border: "1px solid var(--color-line-soft)" }}
       >
         <span className="text-[11px] font-semibold" style={{ color: "var(--color-ink-soft)" }}>
-          PUN
+          {etichetta}
         </span>
         <NumberInput
           value={bozza}
           onChange={setBozza}
           step="0.001"
-          placeholder="€/kWh"
+          placeholder={unitaCosto}
           className="w-16 text-sm outline-none bg-transparent tabular"
           style={{ fontFamily: "var(--font-mono)", color: "var(--color-ink)" }}
         />
@@ -70,17 +78,17 @@ export default function PunBadge() {
       style={{ background: "var(--color-panel)", border: "1px solid var(--color-line-soft)" }}
     >
       <span className="text-[10px] font-semibold uppercase" style={{ color: "var(--color-ink-soft)" }}>
-        PUN
+        {etichetta}
       </span>
       <span
         className="text-sm font-bold tabular"
         style={{ fontFamily: "var(--font-mono)", color: "var(--color-ink)" }}
       >
-        {pun ? `${pun.valore.toLocaleString("it-IT", { minimumFractionDigits: 3 })} €/kWh` : "non impostato"}
+        {indice ? `${indice.valore.toLocaleString("it-IT", { minimumFractionDigits: 3 })} ${unitaCosto}` : "non impostato"}
       </span>
-      {pun && (
+      {indice && (
         <span className="text-[10px]" style={{ color: "var(--color-ink-soft)" }}>
-          · {descriviData(pun.aggiornatoIl)}
+          · {descriviData(indice.aggiornatoIl)}
         </span>
       )}
     </button>
