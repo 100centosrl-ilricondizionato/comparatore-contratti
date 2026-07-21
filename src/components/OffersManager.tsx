@@ -1,8 +1,8 @@
 import { useState } from "react";
 import type { Categoria, Offerta } from "../types";
-import { UNITA } from "../types";
+import { UNITA, ETICHETTA_INDICE } from "../types";
 import { useOfferte } from "../hooks/useOfferte";
-import { usePun } from "../hooks/usePun";
+import { useIndiceMercato } from "../hooks/usePun";
 import NumberInput from "./NumberInput";
 
 interface Props {
@@ -14,7 +14,7 @@ const VUOTA = {
   nome: "",
   tipoPrezzo: "fisso" as const,
   costoUnitario: 0,
-  spreadPun: 0,
+  spreadIndice: 0,
   spesaFissaMensile: 0,
   attiva: true,
   note: "",
@@ -43,14 +43,15 @@ function SelectTipoPrezzo({
 export default function OffersManager({ categoria, onClose }: Props) {
   const { offerte, loading, errore, aggiungiOfferta, aggiornaOfferta, eliminaOfferta } =
     useOfferte(categoria);
-  const { pun } = usePun();
+  const { indice } = useIndiceMercato(categoria);
   const [nuova, setNuova] = useState<Omit<Offerta, "id">>(VUOTA);
   const [editId, setEditId] = useState<string | null>(null);
   const [editBozza, setEditBozza] = useState<Omit<Offerta, "id"> | null>(null);
   const unita = UNITA[categoria];
+  const etichettaIndice = ETICHETTA_INDICE[categoria];
 
-  const nuovaEVariabileLuce = categoria === "luce" && nuova.tipoPrezzo === "variabile";
-  const editEVariabileLuce = categoria === "luce" && editBozza?.tipoPrezzo === "variabile";
+  const nuovaVariabile = nuova.tipoPrezzo === "variabile";
+  const editVariabile = editBozza?.tipoPrezzo === "variabile";
 
   async function handleAggiungi() {
     if (!nuova.nome.trim()) return;
@@ -64,7 +65,7 @@ export default function OffersManager({ categoria, onClose }: Props) {
       nome: o.nome,
       tipoPrezzo: o.tipoPrezzo ?? "fisso",
       costoUnitario: o.costoUnitario,
-      spreadPun: o.spreadPun ?? 0,
+      spreadIndice: o.spreadIndice ?? 0,
       spesaFissaMensile: o.spesaFissaMensile,
       attiva: o.attiva,
       note: o.note ?? "",
@@ -79,8 +80,8 @@ export default function OffersManager({ categoria, onClose }: Props) {
   }
 
   function prezzoLive(spread: number) {
-    if (!pun) return null;
-    return pun.valore + spread;
+    if (!indice) return null;
+    return indice.valore + spread;
   }
 
   return (
@@ -126,12 +127,12 @@ export default function OffersManager({ categoria, onClose }: Props) {
                 value={nuova.tipoPrezzo}
                 onChange={(v) => setNuova({ ...nuova, tipoPrezzo: v })}
               />
-              {nuovaEVariabileLuce ? (
+              {nuovaVariabile ? (
                 <NumberInput
                   step="0.001"
-                  placeholder="Spread su PUN €/kWh"
-                  value={nuova.spreadPun ?? 0}
-                  onChange={(n) => setNuova({ ...nuova, spreadPun: n })}
+                  placeholder={`Spread su ${etichettaIndice}`}
+                  value={nuova.spreadIndice ?? 0}
+                  onChange={(n) => setNuova({ ...nuova, spreadIndice: n })}
                   className="rounded-lg px-3 py-2 text-sm outline-none border"
                   style={{ borderColor: "var(--color-line)" }}
                 />
@@ -154,11 +155,11 @@ export default function OffersManager({ categoria, onClose }: Props) {
                 style={{ borderColor: "var(--color-line)" }}
               />
             </div>
-            {nuovaEVariabileLuce && (
+            {nuovaVariabile && (
               <div className="mt-2 text-xs" style={{ color: "var(--color-ink-soft)" }}>
-                {pun
-                  ? `Prezzo di oggi: PUN (${pun.valore.toLocaleString("it-IT", { minimumFractionDigits: 3 })}) + spread (${(nuova.spreadPun ?? 0).toLocaleString("it-IT", { minimumFractionDigits: 3 })}) = ${prezzoLive(nuova.spreadPun ?? 0)!.toLocaleString("it-IT", { minimumFractionDigits: 3 })} €/kWh`
-                  : "PUN non ancora impostato: aggiornalo dal badge in alto per vedere il prezzo attuale."}
+                {indice
+                  ? `Prezzo di oggi: ${etichettaIndice} (${indice.valore.toLocaleString("it-IT", { minimumFractionDigits: 3 })}) + spread (${(nuova.spreadIndice ?? 0).toLocaleString("it-IT", { minimumFractionDigits: 3 })}) = ${prezzoLive(nuova.spreadIndice ?? 0)!.toLocaleString("it-IT", { minimumFractionDigits: 3 })} ${unita.costo}`
+                  : `${etichettaIndice} non ancora impostato: aggiornalo dal badge in alto per vedere il prezzo attuale.`}
               </div>
             )}
             <input
@@ -205,11 +206,11 @@ export default function OffersManager({ categoria, onClose }: Props) {
                         value={editBozza.tipoPrezzo}
                         onChange={(v) => setEditBozza({ ...editBozza, tipoPrezzo: v })}
                       />
-                      {editEVariabileLuce ? (
+                      {editVariabile ? (
                         <NumberInput
                           step="0.001"
-                          value={editBozza.spreadPun ?? 0}
-                          onChange={(n) => setEditBozza({ ...editBozza, spreadPun: n })}
+                          value={editBozza.spreadIndice ?? 0}
+                          onChange={(n) => setEditBozza({ ...editBozza, spreadIndice: n })}
                           className="rounded-lg px-2 py-1.5 text-sm border outline-none"
                           style={{ borderColor: "var(--color-line)" }}
                         />
@@ -230,11 +231,11 @@ export default function OffersManager({ categoria, onClose }: Props) {
                         style={{ borderColor: "var(--color-line)" }}
                       />
                     </div>
-                    {editEVariabileLuce && (
+                    {editVariabile && (
                       <div className="text-xs" style={{ color: "var(--color-ink-soft)" }}>
-                        {pun
-                          ? `Prezzo di oggi: PUN (${pun.valore.toLocaleString("it-IT", { minimumFractionDigits: 3 })}) + spread (${(editBozza.spreadPun ?? 0).toLocaleString("it-IT", { minimumFractionDigits: 3 })}) = ${prezzoLive(editBozza.spreadPun ?? 0)!.toLocaleString("it-IT", { minimumFractionDigits: 3 })} €/kWh`
-                          : "PUN non ancora impostato."}
+                        {indice
+                          ? `Prezzo di oggi: ${etichettaIndice} (${indice.valore.toLocaleString("it-IT", { minimumFractionDigits: 3 })}) + spread (${(editBozza.spreadIndice ?? 0).toLocaleString("it-IT", { minimumFractionDigits: 3 })}) = ${prezzoLive(editBozza.spreadIndice ?? 0)!.toLocaleString("it-IT", { minimumFractionDigits: 3 })} ${unita.costo}`
+                          : `${etichettaIndice} non ancora impostato.`}
                       </div>
                     )}
                     <input
@@ -279,10 +280,10 @@ export default function OffersManager({ categoria, onClose }: Props) {
                         )}
                       </div>
                       <div className="text-xs tabular" style={{ color: "var(--color-ink-soft)", fontFamily: "var(--font-mono)" }}>
-                        {categoria === "luce" && o.tipoPrezzo === "variabile" ? (
+                        {o.tipoPrezzo === "variabile" ? (
                           <>
-                            PUN + {(o.spreadPun ?? 0).toLocaleString("it-IT", { minimumFractionDigits: 3 })} {unita.costo}
-                            {pun && <> (oggi: {prezzoLive(o.spreadPun ?? 0)!.toLocaleString("it-IT", { minimumFractionDigits: 3 })} {unita.costo})</>}
+                            {etichettaIndice} + {(o.spreadIndice ?? 0).toLocaleString("it-IT", { minimumFractionDigits: 3 })} {unita.costo}
+                            {indice && <> (oggi: {prezzoLive(o.spreadIndice ?? 0)!.toLocaleString("it-IT", { minimumFractionDigits: 3 })} {unita.costo})</>}
                           </>
                         ) : (
                           <>{o.costoUnitario.toLocaleString("it-IT", { minimumFractionDigits: 3 })} {unita.costo}</>
