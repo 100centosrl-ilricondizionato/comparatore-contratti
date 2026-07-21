@@ -18,6 +18,8 @@ export interface Offerta {
 
 export interface ComparatoreInputs {
   clienteNome: string;
+  clienteEmail: string;
+  clienteTelefono: string;
   categoria: Categoria;
   consumoAnnuo: number; // kWh o Smc / anno
   attuale: ContrattoInput;
