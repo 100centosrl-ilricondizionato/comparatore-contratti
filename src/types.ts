@@ -9,8 +9,8 @@ export interface Offerta {
   id: string;
   nome: string;
   tipoPrezzo: "fisso" | "variabile";
-  costoUnitario: number; // usato quando tipoPrezzo è "fisso" (o per il gas, finché non c'è un indice live)
-  spreadPun?: number; // usato per la luce quando tipoPrezzo è "variabile": margine aggiunto al PUN, €/kWh
+  costoUnitario: number; // usato quando tipoPrezzo è "fisso"
+  spreadIndice?: number; // usato quando tipoPrezzo è "variabile": margine aggiunto all'indice di mercato (PUN per la luce, PSV per il gas), €/kWh o €/Smc
   spesaFissaMensile: number;
   attiva: boolean;
   note?: string;
@@ -43,4 +43,9 @@ export interface OffertaClassificata extends Offerta {
 export const UNITA: Record<Categoria, { consumo: string; costo: string }> = {
   luce: { consumo: "kWh", costo: "€/kWh" },
   gas: { consumo: "Smc", costo: "€/Smc" },
+};
+
+export const ETICHETTA_INDICE: Record<Categoria, string> = {
+  luce: "PUN",
+  gas: "PSV",
 };
