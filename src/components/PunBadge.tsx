@@ -72,25 +72,32 @@ export default function IndiceBadge({ categoria }: Props) {
   }
 
   return (
-    <button
-      onClick={apriModifica}
-      className="flex items-center gap-2 rounded-lg px-3 py-2 shrink-0 text-left"
-      style={{ background: "var(--color-panel)", border: "1px solid var(--color-line-soft)" }}
-    >
-      <span className="text-[10px] font-semibold uppercase" style={{ color: "var(--color-ink-soft)" }}>
-        {etichetta}
-      </span>
-      <span
-        className="text-sm font-bold tabular"
-        style={{ fontFamily: "var(--font-mono)", color: "var(--color-ink)" }}
+    <div className="flex flex-col items-start gap-0.5">
+      <button
+        onClick={apriModifica}
+        className="flex items-center gap-2 rounded-lg px-3 py-2 shrink-0 text-left"
+        style={{ background: "var(--color-panel)", border: "1px solid var(--color-line-soft)" }}
       >
-        {indice ? `${indice.valore.toLocaleString("it-IT", { minimumFractionDigits: 3 })} ${unitaCosto}` : "non impostato"}
-      </span>
-      {indice && (
-        <span className="text-[10px]" style={{ color: "var(--color-ink-soft)" }}>
-          · {descriviData(indice.aggiornatoIl)}
+        <span className="text-[10px] font-semibold uppercase" style={{ color: "var(--color-ink-soft)" }}>
+          {etichetta}
+        </span>
+        <span
+          className="text-sm font-bold tabular"
+          style={{ fontFamily: "var(--font-mono)", color: "var(--color-ink)" }}
+        >
+          {indice ? `${indice.valore.toLocaleString("it-IT", { minimumFractionDigits: 3 })} ${unitaCosto}` : "non impostato"}
+        </span>
+        {indice && (
+          <span className="text-[10px]" style={{ color: "var(--color-ink-soft)" }}>
+            · {descriviData(indice.aggiornatoIl)}
+          </span>
+        )}
+      </button>
+      {categoria === "gas" && (
+        <span className="text-[10px] pl-1" style={{ color: "var(--color-ink-soft)" }}>
+          1 Smc ≈ 10,69 kWh (coeff. ARERA)
         </span>
       )}
-    </button>
+    </div>
   );
 }
