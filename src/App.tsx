@@ -12,9 +12,11 @@ import PunBadge from "./components/PunBadge";
 
 const DEFAULT_INPUTS: ComparatoreInputs = {
   clienteNome: "",
+  clienteEmail: "",
+  clienteTelefono: "",
   categoria: "luce",
-  consumoAnnuo: 2700,
-  attuale: { costoUnitario: 0.32, spesaFissaMensile: 8.5 },
+  consumoAnnuo: 0,
+  attuale: { costoUnitario: 0, spesaFissaMensile: 0 },
 };
 
 export default function App() {
